@@ -8,9 +8,16 @@
 <body>  
 
 <?php
+require_once './module/database.php';
+    $db = getSqlDatabase();
+?>
+
+<?php
 // define variables and set to empty values
 $nameErr = $emailErr = $genderErr = $websiteErr = "";
 $name = $email = $gender = $comment = $website = "";
+
+$numOfCorrectInput = 0;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($_POST["name"])) {
@@ -20,6 +27,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // check if name only contains letters and whitespace
         if (!preg_match("/^[a-zA-Z ]*$/",$name)) {
             $nameErr = "Only letters and white space allowed"; 
+        } else {
+            $numOfCorrectInput++;
         }
     }
     
@@ -30,16 +39,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // check if e-mail address is well-formed
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $emailErr = "Invalid email format"; 
+        } else {
+            $numOfCorrectInput++;
         }
     }
         
     if (empty($_POST["website"])) {
+        $numOfCorrectInput++;
         $website = "";
     } else {
         $website = test_input($_POST["website"]);
         // check if URL address syntax is valid (this regular expression also allows dashes in the URL)
         if (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i",$website)) {
             $websiteErr = "Invalid URL"; 
+        } else {
+            $numOfCorrectInput++;
         }
     }
 
@@ -52,7 +66,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($_POST["gender"])) {
         $genderErr = "Gender is required";
     } else {
+        $numOfCorrectInput++;
         $gender = test_input($_POST["gender"]);
+    }
+
+    if ($numOfCorrectInput === 4) {
+        $stmt = $db->prepare(
+            "INSERT INTO `post` (name, email, website, comment, gender)
+            VALUES (:name, :email, :website, :comment, :gender)"
+        );
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':website', $website);
+        $stmt->bindParam(':comment', $comment);
+        $stmt->bindParam(':gender', $gender);
+
+        $stmt->execute();
     }
 }
 
