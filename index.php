@@ -16,7 +16,7 @@ use Respect\Validation\Validator as v;
 
 <?php
 // define variables and set to empty values
-$nameErr = $emailErr = $genderErr = $websiteErr = "";
+$nameErr = $emailErr = $genderErr = $websiteErr = $dbErr = "";
 $name = $email = $gender = $comment = $website = "";
 
 $numOfCorrectInput = 0;
@@ -83,7 +83,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bindParam(':comment', $comment);
         $stmt->bindParam(':gender', $gender);
 
-        $stmt->execute();
+        if ($stmt->execute()) {
+            header("Location: posted.php");
+    
+            exit;
+        } else {
+            $dbErr = "投稿に失敗しました。";
+        }
     }
 }
 
@@ -116,6 +122,7 @@ function test_input($data)
     <span class="error">* <?php echo $genderErr;?></span>
     <br><br>
     <input type="submit" name="submit" value="Submit">
+    <p class="error"><?php echo $dbErr;?></p>
 </form>
 
 <?php
