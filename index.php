@@ -125,18 +125,6 @@ function test_input($data)
     <p class="error"><?php echo $dbErr;?></p>
 </form>
 
-<?php
-echo "<h2>Your Input:</h2>";
-echo $name;
-echo "<br>";
-echo $email;
-echo "<br>";
-echo $website;
-echo "<br>";
-echo $comment;
-echo "<br>";
-echo $gender;
-?>
-
+<a href="postslist.php">投稿一覧</a>
 </body>
 </html>
